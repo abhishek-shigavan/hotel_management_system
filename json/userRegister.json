@@ -1,0 +1,16 @@
+[
+  {
+    "firstName": "Abhishek",
+    "lastName": "Shigavan",
+    "gender": "Male",
+    "mobNo": "1234567890",
+    "userID": "Abhi1234"
+  },
+  {
+    "firstName": "Peter",
+    "lastName": "Parkar",
+    "gender": "Male",
+    "mobNo": "123456",
+    "userID": "Pete1234"
+  }
+]
