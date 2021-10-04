@@ -1,0 +1,30 @@
+[
+  {
+    "firstName": "Abhishek",
+    "lastName": "Shigavan",
+    "gender": "Male",
+    "mobNo": "9876987600",
+    "userID": "Abhi9876"
+  },
+  {
+    "firstName": "Peter",
+    "lastName": "Parkar",
+    "gender": "Male",
+    "mobNo": "9988000000",
+    "userID": "Pete9988"
+  },
+  {
+    "firstName": "Akash",
+    "lastName": "Kakade",
+    "gender": "Male",
+    "mobNo": "1234567890",
+    "userID": "Akas1234"
+  },
+  {
+    "firstName": "Rajat",
+    "lastName": "Sawarkar",
+    "gender": "Male",
+    "mobNo": "9899000000",
+    "userID": "Raja9899"
+  }
+]
