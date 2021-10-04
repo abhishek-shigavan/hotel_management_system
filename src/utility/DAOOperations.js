@@ -1,8 +1,9 @@
 const fileSystem = require('fs');
-const pt = require("prompt-sync")();
+const pt = require('prompt-sync')();
 const writeInXlsx = require('xlsx');
 const io = require('./InputOutputMethods');
 const order = require('./OrderDetails');
+const register = require('./HotelRegister')
 
 const ioMethods = new io.IOMethods();
 
@@ -10,10 +11,10 @@ const orderArray = [];
 
 class DAOOperations {
 
-    getJsonDataObj(filePath) {
-        const userRegister = fileSystem.readFileSync(filePath);
-        const userRegisterObj = JSON.parse(userRegister);
-        return userRegisterObj;
+    getObjOfJsonFileData(filePath) {
+        const jsonFileData = fileSystem.readFileSync(filePath);
+        const objOfJsonFileData = JSON.parse(jsonFileData);
+        return objOfJsonFileData;
     }
 
     writeDataInFile(filePath, data) {
@@ -48,16 +49,15 @@ class DAOOperations {
             }
         }
         else {
-            const isUserPresent = this.checkUserPresent(userKey);
+            const isUserPresent = this.checkUserInRegisteredUsers(userKey);
             if (isUserPresent) {
-                const userDetailsObj = this.getUserByKey(userKey);
-                this.registerUserOperations(userDetailsObj);
+                this.loggedInUserOperations(userKey);
             }
         }
     }
 
     printReportInXlsx() {
-        const reportData = this.getJsonDataObj('./reports/report.json');
+        const reportData = this.getObjOfJsonFileData('./reports/report.json');
         //creating a workbook
         let workBook = writeInXlsx.utils.book_new();
         //creting worksheet
@@ -67,36 +67,43 @@ class DAOOperations {
         console.log(`\nReport Created Sucessfully...!!!`);
     }
 
-    checkUserPresent(userId) {
+    checkUserInRegisteredUsers(userId) {
         let flag = false;
-        const userRegisterObj = this.getJsonDataObj('./json/userRegister.json');
-        for (let user in userRegisterObj) {
-            if (userRegisterObj[user].userID === userId) {
+        const registeredUsersObj = this.getObjOfJsonFileData('./json/registeredUsers.json');
+        for (let user in registeredUsersObj) {
+            if (registeredUsersObj[user].userID === userId) {
                 console.log(`\nLogin Sucessfully...!!!`);
                 flag = true;
             }
         }
 
         if (!flag) {
-            console.log(`\nInvalid Key...!!!`);
+            console.log(`\nInvalid Key...!!!\nIf You Dont Have Key Register First...!!!`);
             this.loginUserToSystem();
         }
         return flag;
     }
 
-    getUserByKey(userId) {
-        const userRegisterObj = this.getJsonDataObj('./json/userRegister.json');
-        for (let user in userRegisterObj) {
-            if (userRegisterObj[user].userID === userId) {
-                const userDetailsObj = userRegisterObj[user];
+    getUserDetailsByKey(userKey) {
+        const registeredUsersObj = this.getObjOfJsonFileData('./json/registeredUsers.json');
+        for (let user in registeredUsersObj) {
+            if (registeredUsersObj[user].userID === userKey) {
+                const userDetailsObj = registeredUsersObj[user];
                 return userDetailsObj;
             }
         }
         return null;
     }
 
-    registerUserOperations(registerUserDetails) {
-        const nameOfUser = registerUserDetails.firstName +" "+ registerUserDetails.lastName;
+    loggedInUserOperations(userKey) {
+        const loggedInUserDetails = this.getUserDetailsByKey(userKey);
+        const nameOfUser = loggedInUserDetails.firstName + " " + loggedInUserDetails.lastName;
+
+        // 0 => HotelRegisterObj, 1 => CheckInInMs, 2 => CheckOutInMs, 
+        // 3 => StayDurationInDays, 4 => StayDurationInHours, 5 => chargesOfStay 
+        const registerArray = [];
+        this.addCheckInDataIntoRegister(loggedInUserDetails, nameOfUser, registerArray);
+        
         let flag = true;
         while (flag) {
             console.log(`\n**** Hotel Management System ****`);
@@ -113,15 +120,113 @@ class DAOOperations {
                 this.takeStuffOrder(selectedItem);
             }
             else if (selectedOption === 3) {
-                const userID = registerUserDetails.userID;
+                this.addCheckOutIntoRegister(registerArray);
+                this.calculateStayDurationAndCharges(registerArray);
+                this.addDataToRegister(registerArray);
+                const totalBill = this.generateFinalBill(registerArray, orderArray);
                 const orderHistory = this.getOrderArrayInString(orderArray);
-                this.generateReport(nameOfUser, userID, orderHistory);
-                console.log(`\n **** Bill ****\n`);
-                console.log(`Customer Name : ${nameOfUser}\n`);
-                this.generateFinalBill(orderArray);
+                this.generateReport(registerArray, orderHistory, totalBill);
+                
                 flag = false;
             }
         }
+    }
+
+    addCheckInDataIntoRegister(loggedInUserDetails, nameOfUser, arrayOfRegister) {
+        const hotelRegister = new register.HotelRegister();
+        const date = new Date();
+
+        hotelRegister.setCustomerName = nameOfUser;
+        hotelRegister.setCustomerGender = loggedInUserDetails.gender;
+        hotelRegister.setCustomerID = loggedInUserDetails.userID;
+        hotelRegister.setCustomerMobNo = loggedInUserDetails.mobNo;
+        const checkInDate = this.getFormatedDate(date);
+        hotelRegister.setCheckInDate = checkInDate;
+        const checkInTime = this.getFormatedTimeInHourMin(date);
+        hotelRegister.setCheckInTime = checkInTime;
+        const checkInTimeInMS = date.getTime();
+        arrayOfRegister.push(hotelRegister);
+        arrayOfRegister.push(checkInTimeInMS);
+    }
+
+    addCheckOutIntoRegister(arrayOfRegister) {
+        const date = new Date();
+        const checkOutDate = this.getFormatedDate(date);
+        const checkOutTime = this.getFormatedTimeInHourMin(date);
+        const checkOutTimeInMS = date.getTime();
+        arrayOfRegister[0].setCheckOutDate = checkOutDate;
+        arrayOfRegister[0].setCheckOutTime = checkOutTime;
+        arrayOfRegister.push(checkOutTimeInMS);
+    }
+
+    getFormatedDate(regularDate) {
+        let day = regularDate.getDate();
+        let month = regularDate.getMonth() + 1;
+        const year = regularDate.getFullYear();
+
+        if(day < 10) {
+            day = '0' + day;
+        }
+        if(month < 10) {
+            month = '0' + month;
+        }
+        const formatedDate = month + '/' + day + '/' + year;
+        return formatedDate;
+    }
+
+    getFormatedTimeInHourMin(regularDate) {
+        const hour = regularDate.getHours();
+        const minutes = regularDate.getMinutes();
+        const hourMinutes = hour +" : "+ minutes;
+        return hourMinutes;
+    }
+
+    calculateStayDurationAndCharges(arrayOfRegister) {
+        const checkOutTime = arrayOfRegister[2];
+        const checkInTime = arrayOfRegister[1];
+        const diffInTime = checkOutTime - checkInTime;
+        const stayDurationInDay = ~~(diffInTime / (1000 * 3600 * 24));
+        const stayDurationInHour = ~~(diffInTime / (1000 * 3600));
+        const gst = 0.18;
+        let chargeOfStay;
+        if(stayDurationInDay > 0) {
+            const perDayCharge = 1000;
+            chargeOfStay = stayDurationInDay * perDayCharge;
+            chargeOfStay = chargeOfStay + (chargeOfStay * gst);
+            arrayOfRegister.push(stayDurationInDay);
+            arrayOfRegister.push(0);
+            arrayOfRegister.push(chargeOfStay)
+        }
+
+        if(stayDurationInHour <= 12) {
+            const halfDayCharge = 500;
+            chargeOfStay = halfDayCharge + (halfDayCharge * gst);
+            arrayOfRegister.push(0);
+            arrayOfRegister.push(stayDurationInHour);
+            arrayOfRegister.push(chargeOfStay);
+        }
+        else if(stayDurationInHour > 12 && stayDurationInHour <= 24) {
+            const chargeForDay = 1000;
+            chargeOfStay = chargeForDay + (chargeForDay * gst);
+            arrayOfRegister.push(0);
+            arrayOfRegister.push(stayDurationInHour);
+            arrayOfRegister.push(chargeOfStay);
+        }
+    }
+
+    addDataToRegister(arrayOfRegister) {
+        const data = arrayOfRegister[0];
+        const registerObj = {
+            "Name Of Customer" : data.getCustomerName,
+            "Gender" : data.getCustomerGender,
+            "UserID" : data.getCustomerID,
+            "Mobile No" : data.getCustomerMobNo,
+            "CheckIn Date" : data.getCheckInDate,
+            "CheckIn Time" : data.getCheckInTime,
+            "CheckOut Date" : data.getCheckOutDate,
+            "CheckOut Time" : data.getCheckOutTime
+        }
+        this.writeDataInFile('./json/hotelRegister.json', registerObj)
     }
 
     getOrderDetailsObj(name, quantity, price, amount) {
@@ -134,9 +239,9 @@ class DAOOperations {
     }
 
     takeFoodOrder(selectedItem) {
-        const itemQuantity =+ pt('Enter Quantity : ');
+        const itemQuantity = + pt('Enter Quantity : ');
         let totalAmount;
-        let gst = 0.18;
+        const gst = 0.18;
         switch (selectedItem) {
             case 1:
                 totalAmount = (itemQuantity * 25);
@@ -166,13 +271,13 @@ class DAOOperations {
                 this.generateBill(orderDetails4);
                 this.addOrderToOrderArray(orderDetails4);
                 break;
-            default :
-                break;    
+            default:
+                break;
         }
     }
 
     takeStuffOrder(selectedItem) {
-        const itemQuantity =+ pt('Enter Quantity : ');
+        const itemQuantity = + pt('Enter Quantity : ');
         let totalAmount;
         let gst = 0.18;
         switch (selectedItem) {
@@ -204,20 +309,20 @@ class DAOOperations {
                 this.generateBill(orderDetails4);
                 this.addOrderToOrderArray(orderDetails4);
                 break;
-        }   
+        }
     }
 
     addOrderToOrderArray(orderObj) {
         let status = true;
-        while(status) {
+        while (status) {
             console.log(`\nTo Confirm Order Enter Y / y & To Cancel Enter N / n`);
             let confirmOrder = pt(`Enter Here : `).toLowerCase();
-            if(confirmOrder === 'y') {
+            if (confirmOrder === 'y') {
                 console.log(`Order Placed Sucessfully...!!!`);
                 orderArray.push(orderObj);
                 status = false;
             }
-            else if(confirmOrder === 'n') {
+            else if (confirmOrder === 'n') {
                 console.log(`\nGoing Back To Dashboard...!!!`);
                 status = false;
             }
@@ -227,26 +332,17 @@ class DAOOperations {
     getOrderArrayInString(orderArray) {
         let orderHistory = "";
         let count = 1;
-        for(let element in orderArray) {
+        for (let element in orderArray) {
             const orderDetailsObj = orderArray[element];
             const nameOfItem = orderDetailsObj.itemName;
             const quantityOfItem = orderDetailsObj.itemQuantity;
             const priceOfItem = orderDetailsObj.itemPrice;
             const totalBill = orderDetailsObj.totalAmount;
-            orderHistory += count +". "+ "Name Of Item : " +nameOfItem+ ", " +"Quantity : " +quantityOfItem+ ", "+
-                            "Price : " +priceOfItem+ ", "+ "TotalAmount : " +totalBill+ " | ";
-            count++;                  
+            orderHistory += count + ". " + "Name Of Item : " + nameOfItem + ", " + "Quantity : " + quantityOfItem + ", " +
+                "Price : " + priceOfItem + ", " + "TotalAmount : " + totalBill + " | ";
+            count++;
         }
         return orderHistory;
-    }
-
-    generateReport(nameOfUser, idOfUser, ordersOfUser) {
-        const User = {
-            NameOfUser: nameOfUser,
-            UserID: idOfUser,
-            OrdersOfUser: ordersOfUser
-        }
-        this.writeDataInFile('./reports/report.json', User)
     }
 
     generateBill(userOrderObj) {
@@ -256,8 +352,19 @@ class DAOOperations {
         console.log(`Total Amount : Rs.${userOrderObj.totalAmount}`);
     }
 
-    generateFinalBill(ordersOfUser) {
+    generateFinalBill(arrayOfRegister, ordersOfUser) {
         let totalBill = 0;
+        const customerName = arrayOfRegister[0].getCustomerName;
+        const stayDurationInDay = arrayOfRegister[3];
+        const stayDurationInHour = arrayOfRegister[4];
+        const charges = arrayOfRegister[5];
+        const stayDuration = stayDurationInDay +" Day "+ stayDurationInHour +" Hours";
+        console.log(`\n **** Bill ****\n`);
+        console.log(`Customer Name : ${customerName}\n`);
+        console.log(`Duration Of Stay : ${stayDuration}\n`);
+        console.log(`Charges Of Stay : Rs.${charges}\n`);
+        console.log(`Your Orders : \n`);
+
         for (let key in ordersOfUser) {
             console.log(`Item Name : ${ordersOfUser[key].itemName}`);
             console.log(`Item Quantity : ${ordersOfUser[key].itemQuantity}`);
@@ -265,7 +372,35 @@ class DAOOperations {
             console.log(`Total Amount : Rs.${ordersOfUser[key].totalAmount}\n`);
             totalBill += ordersOfUser[key].totalAmount;
         }
-        console.log(`Total Bill : Rs.${totalBill}`);
+        totalBill = totalBill + charges;
+        console.log(`Total Bill : Rs.${totalBill}\n`);
+        console.log('Thank You...Visit Us Again...!!!');
+
+        return totalBill;
+    }
+
+    generateReport(arrayOfRegister, ordersOfUser, totalBill) {
+        const nameOfUser = arrayOfRegister[0].getCustomerName;
+        const idOfUser = arrayOfRegister[0].getCustomerID;
+        const checkInDate = arrayOfRegister[0].getCheckInDate;
+        const checkOutDate = arrayOfRegister[0].getCheckOutDate;
+        const stayDurationInDay = arrayOfRegister[3];
+        const stayDurationInHour = arrayOfRegister[4];
+        const stayDuration = stayDurationInDay +" Day "+ stayDurationInHour +" Hours"; 
+        const charges = arrayOfRegister[5];
+
+        const User = {
+            NameOfUser : nameOfUser,
+            UserID : idOfUser,
+            CheckInDate : checkInDate,
+            CheckOutDate : checkOutDate,
+            StayDuration : stayDuration,
+            ChargesOfStay : charges, 
+            OrdersOfUser : ordersOfUser,
+            TotalBill : totalBill
+        }
+
+        this.writeDataInFile('./reports/report.json', User)
     }
 }
 
