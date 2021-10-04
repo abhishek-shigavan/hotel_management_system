@@ -1,0 +1,32 @@
+[
+  {
+    "Name Of Customer": "Abhishek Shigavan",
+    "Gender": "Male",
+    "UserID": "Abhi9876",
+    "Mobile No": "9876987600",
+    "CheckIn Date": "10/04/2021",
+    "CheckIn Time": "2 : 31",
+    "CheckOut Date": "10/04/2021",
+    "CheckOut Time": "2 : 36"
+  },
+  {
+    "Name Of Customer": "Peter Parkar",
+    "Gender": "Male",
+    "UserID": "Pete9988",
+    "Mobile No": "9988000000",
+    "CheckIn Date": "10/04/2021",
+    "CheckIn Time": "2 : 38",
+    "CheckOut Date": "10/04/2021",
+    "CheckOut Time": "2 : 42"
+  },
+  {
+    "Name Of Customer": "Rajat Sawarkar",
+    "Gender": "Male",
+    "UserID": "Raja9899",
+    "Mobile No": "9899000000",
+    "CheckIn Date": "10/04/2021",
+    "CheckIn Time": "10 : 42",
+    "CheckOut Date": "10/04/2021",
+    "CheckOut Time": "10 : 43"
+  }
+]
