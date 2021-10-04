@@ -1,17 +1,21 @@
 {
   "name": "hotel_management_system",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Hotel Management System..Can checkIn / checkOut & place orders",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./src/test/DAOOperations.test.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Abhishek Shigavan",
   "license": "ISC",
   "dependencies": {
     "prompt-sync": "^4.2.0",
     "xlsx": "^0.17.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.1.2"
   }
 }
