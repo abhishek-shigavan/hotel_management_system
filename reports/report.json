@@ -1,12 +1,32 @@
 [
   {
     "NameOfUser": "Abhishek Shigavan",
-    "UserID": "Abhi1234",
-    "OrdersOfUser": "1. Name Of Item : Breakfast, Quantity : 2, Price : 150, TotalAmount : 354 | 2. Name Of Item : Blanket, Quantity : 2, Price : 400, TotalAmount : 944 | "
+    "UserID": "Abhi9876",
+    "CheckInDate": "10/04/2021",
+    "CheckOutDate": "10/04/2021",
+    "StayDuration": "0 Day 0 Hours",
+    "ChargesOfStay": 590,
+    "OrdersOfUser": "1. Name Of Item : Breakfast, Quantity : 2, Price : 150, TotalAmount : 354 | 2. Name Of Item : Bedsheet, Quantity : 2, Price : 300, TotalAmount : 708 | 3. Name Of Item : Dinner, Quantity : 2, Price : 300, TotalAmount : 708 | ",
+    "TotalBill": 2360
   },
   {
     "NameOfUser": "Peter Parkar",
-    "UserID": "Pete1234",
-    "OrdersOfUser": "1. Name Of Item : Dinner, Quantity : 4, Price : 300, TotalAmount : 1416 | 2. Name Of Item : Tea, Quantity : 4, Price : 25, TotalAmount : 118 | 3. Name Of Item : Pillow, Quantity : 2, Price : 150, TotalAmount : 354 | "
+    "UserID": "Pete9988",
+    "CheckInDate": "10/04/2021",
+    "CheckOutDate": "10/04/2021",
+    "StayDuration": "0 Day 0 Hours",
+    "ChargesOfStay": 590,
+    "OrdersOfUser": "1. Name Of Item : Tea, Quantity : 4, Price : 25, TotalAmount : 118 | 2. Name Of Item : Soap, Quantity : 1, Price : 40, TotalAmount : 47.2 | ",
+    "TotalBill": 755.2
+  },
+  {
+    "NameOfUser": "Rajat Sawarkar",
+    "UserID": "Raja9899",
+    "CheckInDate": "10/04/2021",
+    "CheckOutDate": "10/04/2021",
+    "StayDuration": "0 Day 0 Hours",
+    "ChargesOfStay": 590,
+    "OrdersOfUser": "1. Name Of Item : Breakfast, Quantity : 3, Price : 150, TotalAmount : 531 | 2. Name Of Item : Blanket, Quantity : 2, Price : 400, TotalAmount : 944 | ",
+    "TotalBill": 2065
   }
 ]
