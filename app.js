@@ -13,7 +13,7 @@ while (flag) {
 
     if (userResponse.toLowerCase() === 'n') {
         const userDetails = ioMethods.registerUser();
-        daoOperations.writeDataInFile('./json/userRegister.json', userDetails);
+        daoOperations.writeDataInFile('./json/registeredUsers.json', userDetails);
         daoOperations.loginUserToSystem();
         flag = false;
     }
