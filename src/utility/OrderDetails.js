@@ -1,8 +1,8 @@
 class OrderDetails {
-    #itemName;
-    #itemQuantity;
-    #itemPrice;
-    #totalAmount;
+    itemName;
+    itemQuantity;
+    itemPrice;
+    totalAmount;
 
     constructor(itemName, itemQuantity, itemPrice, totalAmount) {
         this.itemName = itemName;
