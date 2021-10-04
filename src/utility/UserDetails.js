@@ -1,9 +1,9 @@
 class UserDetails {
-    #firstName;
-    #lastName;
-    #gender;
-    #mobNo;
-    #userId;
+    firstName;
+    lastName;
+    gender;
+    mobNo;
+    userID;
     
     constructor(firstName, lastName, gender, mobNo, userID) {
         this.firstName = firstName;
